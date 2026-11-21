@@ -1,0 +1,7 @@
+.env
+__pycache__/
+*.pyc
+airfield_env/
+.Neo4jDesktop2/
+.vscode/
+workspace.code-workspace
