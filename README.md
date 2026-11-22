@@ -6,6 +6,9 @@
 [![PostGIS](https://img.shields.io/badge/PostGIS-Spatial%20Engine-006400.svg?style=flat&logo=postgis&logoColor=white)](https://postgis.net/)
 [![NetworkX](https://img.shields.io/badge/NetworkX-Graph%20Clustering-orange.svg?style=flat)](https://networkx.org/)
 [![Streamlit](https://img.shields.io/badge/Streamlit-Dashboard-FF4B4B.svg?style=flat&logo=streamlit&logoColor=white)](https://streamlit.io/)
+[![FastAPI](https://img.shields.io/badge/FastAPI-REST%20API-009688.svg?style=flat&logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com/)
+[![Pytest](https://img.shields.io/badge/Pytest-13%20Passed-0A9EDC.svg?style=flat&logo=pytest&logoColor=white)](https://pytest.org/)
+[![Docker](https://img.shields.io/badge/Docker-Ready-2496ED.svg?style=flat&logo=docker&logoColor=white)](https://www.docker.com/)
 [![RapidFuzz](https://img.shields.io/badge/RapidFuzz-String%20Matching-blueviolet.svg?style=flat)](https://github.com/maxbachmann/RapidFuzz)
 
 ---
@@ -21,6 +24,7 @@ Unlike naive fuzzy-matching scripts, this system combines:
 4. **Operational Conflict Guardrails** that actively flag spatial dispersion anomalies, code contradictions, and multi-entity ambiguities.
 5. **Full Explainability & Audit Trail (`why_linked`)** implemented directly in PostgreSQL/PostGIS, allowing stakeholders to query the exact mathematical evidence behind any merge decision.
 6. **Interactive Visual Dashboard** powered by **Streamlit** and **PyVis**, providing real-time spatial filtering, audit drill-downs, and interactive force-directed graph exploration.
+7. **REST Explainability Microservice (FastAPI)** delivering high-speed `/entity/{id}/why` JSON evidence payloads and plain-text operational audit reports with automated **pytest** coverage and **Docker** containerization.
 
 ---
 
@@ -82,6 +86,14 @@ Unlike naive fuzzy-matching scripts, this system combines:
 │ STAGE 7: EXPORTS & STREAMLIT DASHBOARD                                           │
 │  - GIS Exports: resolved_airfields.geojson & resolved_airfields_map.csv          │
 │  - Web App: Spatial Distribution, NetworkX Graph Visualizer, Conflict Auditing    │
+└─────────────────────────────────────────┬────────────────────────────────────────┘
+                                          │
+                                          ▼
+┌──────────────────────────────────────────────────────────────────────────────────┐
+│ STAGE 8: FASTAPI EXPLAINABILITY SERVICE & DOCKER DEPLOYMENT                      │
+│  - REST Endpoints: /entity/{id}/why (JSON breakdown & text), /entity/{id}, /health│
+│  - Full Automated Pytest Suite: 13 tests covering endpoints & scoring units      │
+│  - Production Dockerfile & docker-compose.yml (PostGIS + FastAPI orchestration)  │
 └──────────────────────────────────────────────────────────────────────────────────┘
 ```
 
@@ -137,6 +149,15 @@ All conflicts are written to `resolution_conflicts` with severity ratings (`HIGH
 ├── export_map.py                  # Stage 7b: Export source points to CSV for mapping
 ├── run_pipeline.py                # Master CLI: Orchestrates Stages 1-7 end-to-end
 ├── dashboard.py                   # Streamlit web application with embedded NetworkX graphs
+├── api.py                         # Stage 8: FastAPI REST Service & /entity/{id}/why explainability
+├── Dockerfile                     # Multi-stage production container image
+├── .dockerignore                  # Docker build exclusion definitions
+├── docker-compose.yml             # Orchestration: PostGIS Database + FastAPI Service
+├── tests/                         # Pytest test suite (13 automated tests)
+│   ├── __init__.py                # Test package marker
+│   ├── conftest.py                # Test fixtures, TestClient, & mock DB connection
+│   ├── test_api.py                # End-to-end API tests for all endpoints
+│   └── test_scoring.py            # Unit tests for scoring, distance, and token matching
 ├── airfield_graph.html            # Standalone interactive PyVis force-directed network graph
 ├── resolved_airfields.geojson     # Output: GeoJSON of canonical master airfields
 ├── resolved_airfields_map.csv     # Output: Flattened CSV of resolved records with UUIDs
@@ -259,6 +280,82 @@ Start the interactive web dashboard:
 - **⚠️ Conflict Inspection:** Real-time view of entities flagged by guardrails with direct descriptions of detected anomalies.
 - **🔍 'Why Linked?' Audit Explorer:** Full interactive audit trail answering *"Why did you merge these records?"* with tabular metrics and graph visualizer.
 - **📋 Raw Mappings:** Live paginated view of individual source-to-master entity mappings.
+
+---
+
+### 4. FastAPI Explainability REST Service: `api.py`
+
+A production-grade REST microservice providing programmatic explainability, search, and health monitoring for downstream services and intelligence platforms.
+
+#### Start the API Server:
+```powershell
+.\airfield_env\Scripts\python.exe -m uvicorn api:app --reload --host 0.0.0.0 --port 8000
+```
+- **Interactive Swagger UI:** Open [http://localhost:8000/docs](http://localhost:8000/docs)
+- **ReDoc Documentation:** Open [http://localhost:8000/redoc](http://localhost:8000/redoc)
+
+#### Core Endpoints:
+| Method | Endpoint | Description |
+|---|---|---|
+| `GET` | `/health` | Service health status and live PostGIS database connectivity check. |
+| `GET` | `/entities` | Paginated search across resolved master airfields (supports `search`, `limit`, `offset`, `has_conflict`). |
+| `GET` | `/entity/{id}` | Canonical metadata rollup for a master entity or source record ID. |
+| `GET` | `/entity/{id}/why` | **Operational Explainability:** Complete mathematical evidence, component weights, pairwise match scores, constituent records, and narrative justifications behind why records were merged into this entity. |
+
+#### Querying `/entity/{id}/why`:
+The endpoint accepts either a master `entity_id` (UUID) or any constituent raw source record ID (e.g. `osm_747078123`, `ourairports_42716`):
+
+```powershell
+# 1. Query by Master Entity UUID (Structured JSON)
+curl.exe http://localhost:8000/entity/027aa6b9-6155-51fd-b5bc-4ea6925156df/why
+
+# 2. Query by raw source ID (Automatically resolves to master entity)
+curl.exe http://localhost:8000/entity/osm_747078123/why
+
+# 3. Formatted ASCII Operational Audit Report (Plain Text)
+curl.exe "http://localhost:8000/entity/027aa6b9-6155-51fd-b5bc-4ea6925156df/why?format=text"
+
+# 4. Using PowerShell's built-in JSON parser:
+Invoke-RestMethod http://localhost:8000/entity/027aa6b9-6155-51fd-b5bc-4ea6925156df/why
+```
+
+---
+
+### 5. Automated Testing with Pytest
+
+The test suite covers API endpoints, input validation, singleton handling, 404 error responses, as well as core mathematical scoring unit logic:
+
+```powershell
+# Run the complete test suite
+.\airfield_env\Scripts\python.exe -m pytest -v
+```
+
+**Test Coverage Summary (13 tests):**
+- `tests/test_api.py`: Root `/`, `/health`, `/entity/{id}/why` (JSON), source ID resolution, `?format=text` report, singleton explanation, and 404 handling.
+- `tests/test_scoring.py`: Linear distance metric decay, ICAO/IATA code verification (agreement, conflict, neutrality), facility type matrix compatibility, RapidFuzz token matching, and Haversine distance calculations.
+
+---
+
+### 6. Containerized Deployment (Docker & Docker Compose)
+
+#### Option A: Docker Compose (Full Stack: PostGIS + FastAPI)
+Spins up a PostGIS database and the FastAPI service together with automated health checks:
+```bash
+docker compose up -d --build
+```
+Access the API at `http://localhost:8000/docs`.
+
+#### Option B: Standalone Docker Image
+```bash
+# Build the Docker image
+docker build -t airfield-entity-api .
+
+# Run the container
+docker run -d --name airfield-api \
+  -p 8000:8000 \
+  -e AIRFIELDS_DB_URL="postgresql://postgres:password@host.docker.internal:5432/airfields" \
+  airfield-entity-api
+```
 
 ---
 
