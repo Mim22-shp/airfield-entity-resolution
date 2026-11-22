@@ -74,6 +74,17 @@ def load_data():
     else:
         df_summary = None
 
+    # Fallback to pre-exported CSV when running on cloud without live PostGIS
+    if df_summary is None:
+        summary_csv_path = os.path.join(os.path.dirname(__file__), "entity_summary.csv")
+        if not os.path.exists(summary_csv_path):
+            summary_csv_path = os.path.join(os.path.dirname(__file__), "Data", "entity_summary.csv")
+        if os.path.exists(summary_csv_path):
+            try:
+                df_summary = pd.read_csv(summary_csv_path)
+            except Exception:
+                df_summary = None
+
     return df_points, df_summary
 
 
