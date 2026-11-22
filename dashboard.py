@@ -54,6 +54,8 @@ engine = get_db_engine()
 def load_data():
     map_csv_path = os.path.join(os.path.dirname(__file__), "resolved_airfields_map.csv")
     if not os.path.exists(map_csv_path):
+        map_csv_path = os.path.join(os.path.dirname(__file__), "Data", "resolved_airfields_map.csv")
+    if not os.path.exists(map_csv_path):
         return None, None
     df_points = pd.read_csv(map_csv_path)
 
@@ -279,6 +281,8 @@ with tabs[1]:
     else:
         st.markdown("Interactive PyVis visualization of all auto-merged airfield clusters across India.")
         graph_html_path = os.path.join(os.path.dirname(__file__), "airfield_graph.html")
+        if not os.path.exists(graph_html_path):
+            graph_html_path = os.path.join(os.path.dirname(__file__), "Assets", "airfield_graph.html")
 
         if os.path.exists(graph_html_path):
             with open(graph_html_path, "r", encoding="utf-8") as f:

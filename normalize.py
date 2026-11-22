@@ -53,7 +53,7 @@ def run_normalization():
                     ' ', 
                     'g'
                 ),
-                '\\b(airport|aerodrome|air force station|afs|air force base|airbase|heliport|helipad|airstrip|strip|international|domestic|civil enclave|civil aerodrome|enclave|flying club)\\b',
+                '\\y(airport|aerodrome|air force station|afs|air force base|airbase|heliport|helipad|airstrip|strip|international|domestic|civil enclave|civil aerodrome|enclave|flying club)\\y',
                 ' ',
                 'g'
             )), '') AS clean_name,
@@ -89,7 +89,7 @@ def run_normalization():
                     ' ', 
                     'g'
                 ),
-                '\\b(airport|aerodrome|air force station|afs|air force base|airbase|heliport|helipad|airstrip|strip|international|domestic|civil enclave|civil aerodrome|enclave|flying club)\\b',
+                '\\y(airport|aerodrome|air force station|afs|air force base|airbase|heliport|helipad|airstrip|strip|international|domestic|civil enclave|civil aerodrome|enclave|flying club)\\y',
                 ' ',
                 'g'
             )), '') AS clean_name,
@@ -124,7 +124,7 @@ def run_normalization():
                     ' ', 
                     'g'
                 ),
-                '\\b(airport|aerodrome|air force station|afs|air force base|airbase|heliport|helipad|airstrip|strip|international|domestic|civil enclave|civil aerodrome|enclave|flying club)\\b',
+                '\\y(airport|aerodrome|air force station|afs|air force base|airbase|heliport|helipad|airstrip|strip|international|domestic|civil enclave|civil aerodrome|enclave|flying club)\\y',
                 ' ',
                 'g'
             )), '') AS clean_name,
