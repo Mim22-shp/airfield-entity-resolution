@@ -1,0 +1,36 @@
+# Byte-compiled / optimized files
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# Environments & Virtualenvs
+airfield_env/
+.venv/
+env/
+venv/
+ENV/
+
+# Sensitive environment variables
+.env
+*.env.local
+
+# IDE & Editor configs
+.vscode/
+.idea/
+*.swp
+*.swo
+workspace.code-workspace
+
+# Testing & Cache
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Local databases, GIS raw dumps & screenshots
+.Neo4jDesktop2/
+Data GraphDB/
+*.png
+*.pdf
+resolved_airfields.geojson
+airfield_graph.html

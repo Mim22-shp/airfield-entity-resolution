@@ -5,3 +5,4 @@ airfield_env/
 .Neo4jDesktop2/
 .vscode/
 workspace.code-workspace
+.pytest_cache/
